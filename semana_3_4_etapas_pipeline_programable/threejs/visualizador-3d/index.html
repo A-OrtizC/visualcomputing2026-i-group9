@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Taller Pipeline Programable - Three.js</title>
+    <style> body { margin: 0; } canvas { width: 100%; height: 100% } </style>
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'https://cdn.skypack.dev/three@0.136.0';
+
+        // 1. Escena básica
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // 2. Definición de Shaders (GLSL)
+        const _VS = `
+            varying vec2 vUv;
+            uniform float uTime;
+            void main() {
+                vUv = uv;
+                vec3 pos = position;
+                // Deformación: Onda senoidal similar a la de Unity
+                pos.z += sin(pos.x * 5.0 + uTime) * 0.2;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+            }
+        `;
+
+        const _FS = `
+            varying vec2 vUv;
+            uniform float uTime;
+            void main() {
+                // Efecto procedural: El color cambia con el tiempo y la posición UV
+                vec3 color = 0.5 + 0.5 * cos(uTime + vUv.xyx + vec3(0, 2, 4));
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `;
+
+        // 3. Crear el ShaderMaterial
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                uTime: { value: 0.0 }
+            },
+            vertexShader: _VS,
+            fragmentShader: _FS,
+            wireframe: true // Úsalo para ver mejor la deformación de los triángulos
+        });
+
+        // 4. Geometría (Usa un Plano con muchas subdivisiones)
+        const geometry = new THREE.PlaneGeometry(5, 5, 32, 32);
+        const plane = new THREE.Mesh(geometry, material);
+        scene.add(plane);
+
+        camera.position.z = 5;
+
+        // 5. Animación (Render Loop)
+        function animate(time) {
+            requestAnimationFrame(animate);
+            // Actualizar el uniform de tiempo
+            material.uniforms.uTime.value = time * 0.001; 
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>
