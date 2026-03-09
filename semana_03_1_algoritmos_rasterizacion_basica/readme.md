@@ -3,7 +3,16 @@
 
 ## Nombre de los estudiantes
 
+
+* Brayan Alejandro Muñoz Pérez bmunozp@unal.edu.co
+* Álvaro Andrés Romero Castro alromeroca@unal.edu.co
+* Juan Camilo Lopez Bustos juclopezbu@unal.edu.co
+* Oscar Javier Martinez Martinez ojmartinezma@unal.edu.co
+* Alejandro Ortiz Cortes alortizco@unal.edu.co
+
 ## fecha de entrega
+
+09 de Marzo de 2026
 
 ## Descripción breve
 
