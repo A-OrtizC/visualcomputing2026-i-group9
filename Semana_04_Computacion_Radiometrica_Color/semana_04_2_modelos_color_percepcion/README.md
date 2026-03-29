@@ -1,91 +1,92 @@
-# Taller - Explorando el Color: Percepción Humana y Modelos Computacionales
+# Taller Modelos Color Percepcion
 
-## Objetivo del taller
+## Nombre de los estudiantes
+* Brayan Alejandro Muñoz Pérez bmunozp@unal.edu.co
+* Álvaro Andrés Romero Castro alromeroca@unal.edu.co
+* Juan Camilo Lopez Bustos juclopezbu@unal.edu.co
+* Oscar Javier Martinez Martinez ojmartinezma@unal.edu.co
+* Alejandro Ortiz Cortes alortizco@unal.edu.co
 
-Investigar la percepción del color desde el punto de vista humano y computacional, y representar visualmente las diferencias entre modelos de color. El objetivo es comprender cómo los distintos espacios de color afectan la interpretación visual y cómo pueden aplicarse transformaciones para simular condiciones específicas.
-
----
-
-## Actividades por entorno
-
-Este taller se desarrolla en **Python** y puede complementarse con escenas en **Unity** o **Three.js** para explorar efectos visuales sobre materiales o texturas.
-
----
-
-### Python (Colab o Jupyter Notebook)
-
-**Herramientas:** `opencv-python`, `matplotlib`, `colorsys`, `skimage.color`, `numpy`
-
-- Cargar una imagen y convertirla entre diferentes espacios de color:
- - De **RGB → HSV**
- - De **RGB → CIE Lab**
-- Visualizar los canales individuales y su efecto en la percepción.
-- Simular alteraciones de visión:
- - Daltonismo (protanopía, deuteranopía) con funciones de simulación o manipulación de matrices de color.
- - Reducción de brillo o contraste para simular entornos de baja luz.
-- Aplicar transformaciones de color sobre imágenes o texturas para cambiar el aspecto visual según condiciones personalizadas (e.g., filtros de temperatura de color, inversión, monocromo).
-- *Bonus:* Crear una función que permita alternar dinámicamente entre modelos o simulaciones.
+## Fecha de entrega
+2026-03-28
 
 ---
 
-### Unity o Three.js (Opcional)
+## Descripción breve
+Este taller explora la representación del color desde dos perspectivas: la computacional y la humana. Se trabajó en la conversión de imágenes entre espacios de color **RGB, HSV y CIE Lab**, analizando cómo cada modelo descompone la información visual.
 
-**Escenario:**
-
-- Crear una escena con materiales aplicados a objetos (cubos, esferas).
-- Aplicar cambios de color programáticamente (por código) y observar su efecto visual.
-- Simular filtros de visión o cambios de color al modificar shaders, materiales o texturas.
-- *Bonus:* Agregar un UI slider o menú para seleccionar el modelo de color o simulación.
+Además, se implementaron simulaciones de **daltonismo (protanopía y deuteranopía)** en Python para entender las deficiencias en la percepción del color. Finalmente, en Unity, se aplicó el modelo **HSV** para crear materiales que cambian de matiz dinámicamente en un entorno 3D.
 
 ---
 
-## Entrega
+## Implementaciones
 
-Crear carpeta con el nombre: `semana_4_2_modelos_color_percepcion` en tu repositorio de GitLab.
+### Python (Google Colab)
+Se utilizaron las librerías `OpenCV`, `Matplotlib` y `Numpy`. La implementación incluye:
+* **Conversión de Espacios**: Transformación de imágenes de RGB a HSV (para separar matiz y brillo) y a CIE Lab (perceptualmente uniforme).
+* **Visualización de Canales**: Descomposición de la imagen en sus canales individuales para observar la luminancia y la crominancia por separado.
+* **Simulación de Daltonismo**: Aplicación de matrices de transformación lineal para simular cómo perciben los colores personas con protanopía y deuteranopía.
 
-Dentro de la carpeta, crear la siguiente estructura:
+### Unity
+Se desarrolló un sistema de materiales dinámicos en Unity 6.
+* **Scripting C#**: Creación de un script que utiliza la función `Color.HSVToRGB`.
+* **Ciclo de Color**: Los objetos (Esfera y Cubo) cambian su matiz (Hue) automáticamente basándose en el tiempo del sistema ($Time.time$), permitiendo observar la transición fluida a través del espectro visible.
+
+---
+
+## Resultados visuales
+
+### Python - Implementación
+![Canales HSV y Simulación Daltonismo](./media/python_resultado_1.gif)
+*Visualización de los canales de Matiz, Saturación y Valor.*
+
+
+
+### Unity - Implementación
+![Ciclo de Color Unity](./media/unity_resultado_1.gif)
+*GIF de los objetos 3D cambiando de color automáticamente mediante el modelo HSV.*
+
+---
+
+## Código relevante
+
+### Transformación de Daltonismo (Python):
+```python
+# Matriz para simular Protanopía
+protan_matrix = np.array([
+    [0.567, 0.433, 0.0],
+    [0.558, 0.442, 0.0],
+    [0.0, 0.242, 0.758]
+])
+img_sim = img_rgb.dot(protan_matrix.T)
 
 ```
-semana_4_2_modelos_color_percepcion/
-├── python/
-├── unity/
-├── threejs/
-├── media/ # Imágenes, videos, GIFs de resultados
-└── README.md
+
+### Cambio de color por tiempo (Unity C#):
+
+```C#
+float hue = Mathf.PingPong(Time.time * 0.5f, 1f);
+Color newColor = Color.HSVToRGB(hue, 1f, 1f);
+sphereRenderer.material.color = newColor;
+
 ```
 
-### Requisitos del README.md
+## Prompts utilizados
+- "Cargar una imagen en Google Colab y convertirla de RGB a HSV y CIE Lab usando OpenCV."
 
-El archivo `README.md` debe contener obligatoriamente:
+- "Matrices de transformación para simular protanopía y deuteranopía en Python."
 
-1. **Título del taller**: Taller Modelos Color Percepcion
-2. **Nombre del estudiante**
-3. **Fecha de entrega**
-4. **Descripción breve**: Explicación del objetivo y lo desarrollado
-5. **Implementaciones**: Descripción de cada implementación realizada por entorno
-6. **Resultados visuales**: 
- - **Imágenes, videos o GIFs** que muestren el funcionamiento
- - Deben estar en la carpeta `media/` y referenciados en el README
- - Mínimo 2 capturas/GIFs por implementación
-7. **Código relevante**: Snippets importantes o enlaces al código
-8. **Prompts utilizados**: Descripción de prompts usados (si aplicaron IA generativa)
-9. **Aprendizajes y dificultades**: Reflexión personal sobre el proceso
+- "Script en C# para Unity que cambie el color de un objeto automáticamente usando el modelo HSV."
 
-### Estructura de carpetas
+## Aprendizajes y dificultades
+### Aprendizajes
+Reforcé la comprensión de que el color en computación no es solo "píxeles rojos, verdes y azules", sino que existen modelos como CIE Lab que intentan imitar la biología humana. Aprendí a manipular matrices de color para alterar la percepción visual de forma matemática.
 
-- Cada entorno de desarrollo debe tener su propia subcarpeta (`python/`, `unity/`, `threejs/`, etc.)
-- La carpeta `media/` debe contener todos los recursos visuales (imágenes, GIFs, videos)
-- Nombres de archivos en minúsculas, sin espacios (usar guiones bajos o guiones medios)
+### Dificultades
+La mayor dificultad fue entender cómo Unity maneja los rangos de HSV, ya que a diferencia de otros softwares que usan grados (0-360°), Unity utiliza valores normalizados de 0 a 1. Lo resolví consultando la documentación técnica de la clase Color.
 
----
 
-## Criterios de evaluación
+## Referencias
+- Documentación oficial de OpenCV: https://docs.opencv.org/
 
-- Cumplimiento de los objetivos del taller
-- Código limpio, comentado y bien estructurado
-- README.md completo con toda la información requerida
-- Evidencias visuales claras (imágenes/GIFs/videos en carpeta `media/`)
-- Repositorio organizado siguiendo la estructura especificada
-- Commits descriptivos en inglés
-- Nombre de carpeta correcto: `semana_4_2_modelos_color_percepcion`
-
+- Scripting API de Unity (Color.HSVToRGB): https://docs.unity3d.com/
