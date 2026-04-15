@@ -45,10 +45,10 @@ Se utilizó una estructura de componentes basada en `<group>` y `<mesh>` para re
 *Visualización de la trayectoria roja generada por la animación automática.*
 
 ### Three.js - Implementación
-![Movimiento Manual Threejs](./media/three_resultado_1.gif)  
+![Movimiento Manual Threejs](./media/trhee_resultado_1.gif)  
 *Ajuste de ángulos mediante sliders de Leva y visualización de estela.*
 
-![Movimiento Automático Threejs](./media/three_resultado_2.gif)  
+![Movimiento Automático Threejs](./media/trhee_resultado_2.gif)  
 *Brazo en modo automático dibujando patrones espaciales con el Trail.*
 
 ---
