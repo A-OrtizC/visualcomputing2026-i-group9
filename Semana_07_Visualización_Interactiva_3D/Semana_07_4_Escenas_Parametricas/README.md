@@ -43,7 +43,7 @@ Se desarrolló un generador de primitivas en tiempo de ejecución.
 ### Three.js
 | Captura 1 | Captura 2 |
 | :---: | :---: |
-| ![Threejs 1](media/threejs_resultado_1.png) | ![Threejs 2](media/threejs_resultado_2.png) |
+| ![Threejs 1](media/three_resultado_1.png) | ![Threejs 2](media/three_resultado_2.png) |
 *Uso de Leva para modificar parámetros de escala y visualización de mallas.*
 
 ### Unity
