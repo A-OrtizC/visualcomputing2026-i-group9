@@ -43,7 +43,7 @@ La implementación se realizó utilizando un enfoque de **multihilo (threading)*
 
 *Demostración del trazo siguiendo el dedo índice y la respuesta visual del puntero en pantalla.*
 
-<video src="./media/python_resultado_2.webm" controls width="100%">
+<video src="./media/python_resultado_2.mp4" controls width="100%">
   Tu navegador no soporta el formato de video.
 </video>
 
