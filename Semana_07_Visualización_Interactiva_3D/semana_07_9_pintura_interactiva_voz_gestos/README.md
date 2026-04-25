@@ -43,9 +43,8 @@ La implementación se realizó utilizando un enfoque de **multihilo (threading)*
 
 *Demostración del trazo siguiendo el dedo índice y la respuesta visual del puntero en pantalla.*
 
-<video src="./media/python_resultado_2.mp4" controls width="100%">
-  Tu navegador no soporta el formato de video.
-</video>
+[python_resultado_2.webm](https://github.com/user-attachments/assets/ec51a969-62b9-4dbb-8c37-30a3691d2042)
+
 
 *Captura del sistema reconociendo comandos de voz para cambiar de color y el resultado del lienzo guardado localmente.*
 
