@@ -30,3 +30,4 @@ venv/
 *.tmp
 *.svg
 *.zip
+.vs/
