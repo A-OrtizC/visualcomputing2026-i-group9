@@ -41,7 +41,7 @@ La implementación se realizó utilizando un enfoque de **multihilo (threading)*
 
 ### Python - Implementación
 
-![Funcionamiento de pintura y gestos](./media/python:resultado_1.gif)
+![Funcionamiento de pintura y gestos](./media/python_resultado_1.gif)
 
 *Demostración del trazo siguiendo el dedo índice y la respuesta visual del puntero en pantalla.*
 
