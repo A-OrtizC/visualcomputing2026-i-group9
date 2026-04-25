@@ -1,4 +1,4 @@
-# Taller Arquitectura Escenas Navegacion Unity Threejs
+# Escenas paramétricas
 
 ## Nombre del estudiante
 * Brayan Alejandro Muñoz Pérez bmunozp@unal.edu.co
