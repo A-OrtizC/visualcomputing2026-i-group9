@@ -41,11 +41,11 @@ La implementación se realizó utilizando un enfoque de **multihilo (threading)*
 
 ### Python - Implementación
 
-![Funcionamiento de pintura y gestos](./media/python:resultado_1.gif)
+![Funcionamiento de pintura y gestos](./media/python_resultado_1.gif)
 
 *Demostración del trazo siguiendo el dedo índice y la respuesta visual del puntero en pantalla.*
 
-![Comandos de voz y guardado](./media/python_resultado_2.mkv)
+![Comandos de voz y guardado](./media/python_resultado_2.mp4)
 
 *Captura del sistema reconociendo comandos de voz para cambiar de color y el resultado del lienzo guardado localmente.*
 
