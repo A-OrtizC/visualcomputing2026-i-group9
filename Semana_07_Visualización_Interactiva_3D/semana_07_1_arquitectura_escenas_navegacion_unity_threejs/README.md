@@ -4,7 +4,6 @@
 * Brayan Alejandro Muñoz Pérez bmunozp@unal.edu.co
 * Álvaro Andrés Romero Castro alromeroca@unal.edu.co
 * Juan Camilo Lopez Bustos juclopezbu@unal.edu.co
-* Oscar Javier Martinez Martinez ojmartinezma@unal.edu.co
 * Alejandro Ortiz Cortes alortizco@unal.edu.co
 
 ## Fecha de entrega
