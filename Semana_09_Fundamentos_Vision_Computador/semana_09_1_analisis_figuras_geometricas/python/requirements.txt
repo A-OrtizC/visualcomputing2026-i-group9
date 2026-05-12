@@ -1,0 +1,4 @@
+numpy
+matplotlib
+opencv2
+pathlib
