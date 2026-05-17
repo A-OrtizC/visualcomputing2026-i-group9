@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>AR.js GLB</title>
+
+    <!-- AFRAME -->
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+
+    <!-- AR.JS -->
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+</head>
+
+<body style="margin:0; overflow:hidden;">
+
+    <a-scene
+
+        embedded
+
+        vr-mode-ui="enabled: false"
+
+        renderer="logarithmicDepthBuffer: true;"
+
+        arjs="
+            trackingMethod: best;
+            sourceType: webcam;
+            debugUIEnabled: false;">
+
+        <!-- Recursos -->
+        <a-assets>
+
+            <!-- MODELO GLB -->
+            <a-asset-item
+                id="modelo"
+                src="modelo.glb">
+            </a-asset-item>
+
+            <a-asset-item
+                id="modelo2"
+                src="modelo2.glb">
+            </a-asset-item>
+
+            <!-- Sonido -->
+            <audio
+                id="audioDetectado"
+                src="sonido.mp3">
+            </audio>
+
+            <audio
+                id="audioDetectado2"
+                src="sonido2.mp3">
+            </audio>
+
+        </a-assets>
+
+        <!-- MARCADOR HIRO -->
+        <a-marker id="marcador" preset="hiro">
+
+            <!-- MODELO 3D -->
+            <a-entity
+                gltf-model="#modelo"
+
+                position="0 0 0.5"
+
+                scale="0.5 0.5 0.5"
+
+                rotation="270 0 0"
+
+                animation="
+                    property: rotation;
+                    from: 270 0 0;
+                    to: 360 0 0;
+                    dir: alternate;
+                    loop: true;
+                    dur: 2000;
+                    easing: easeInOutSine;">
+            </a-entity>
+
+        </a-marker>
+
+        <!-- MARCADOR HIRO -->
+        <a-marker id="marcador2" type="pattern"
+            url="pattern-unal.patt">
+
+            <!-- MODELO 3D -->
+            <a-entity
+                gltf-model="#modelo2"
+
+                position="0 0 0"
+
+                scale="4 4 4"
+
+                rotation="270 0 0"
+
+                animation="
+                    property: rotation;
+                    from: 270 0 0;
+                    to: 360 0 0;
+                    dir: alternate;
+                    loop: true;
+                    dur: 2000;
+                    easing: easeInOutSine;">
+            </a-entity>
+
+        </a-marker>
+
+        <!-- CÁMARA -->
+        <a-entity camera></a-entity>
+
+    </a-scene>
+
+    <script>
+
+        // Esperar carga
+        window.onload = () => {
+
+            // Obtener marcador
+            const marcador =
+                document.querySelector("#marcador");
+                
+            const marcador2 =
+                document.querySelector("#marcador2");
+
+            // Obtener audio
+            const audio =
+                document.querySelector("#audioDetectado");
+
+            const audio2 =
+                document.querySelector("#audioDetectado2");
+
+            /*
+            ==========================================
+            CUANDO DETECTA MARCADOR
+            ==========================================
+            */
+
+            marcador.addEventListener(
+                "markerFound",
+                () => {
+
+                    // Reiniciar audio
+                    audio.currentTime = 0;
+
+                    // Reproducir
+                    audio.play();
+
+                }
+            );
+
+            marcador2.addEventListener(
+                "markerFound",
+                () => {
+
+                    // Reiniciar audio
+                    audio2.currentTime = 0;
+
+                    // Reproducir
+                    audio2.play();
+
+                }
+            );
+
+        };
+
+    </script>
+
+</body>
+
+</html>
