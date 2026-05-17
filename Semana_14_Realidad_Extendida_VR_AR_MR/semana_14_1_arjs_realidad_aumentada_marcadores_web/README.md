@@ -223,9 +223,7 @@ marcador2.addEventListener(
 
 #### Demostración
 
-<video width="700" autoplay loop muted controls>
-    <source src="media/reconocimiento.mp4" type="video/mp4">
-</video>
+https://github.com/user-attachments/assets/1c3d1194-4cd3-4688-9e9f-a33212486594
 
 ---
 
