@@ -36,11 +36,11 @@ El taller se desarrolló íntegramente en Python utilizando un cuaderno de Googl
 
 ### Python - Implementación
 
-![Canales RGB y HSV](./media/Imagen1.jpg)
+![Canales RGB y HSV](./media/Imagen1.png)
 
 **Descomposición de Canales de Color:** En esta imagen se evidencia la separación de la matriz principal en sus canales individuales. En la fila superior, se observan los canales Rojo (R), Verde (G) y Azul (B), donde las áreas más claras indican una mayor intensidad de dicho color. En la fila inferior, se visualiza el espacio de color HSV (Hue, Saturation, Value), lo cual es muy útil para separar la información del color real (Matiz) de la iluminación (Brillo/Value).
 
-![Modificación por Slicing](./media/Imagen2.jpg)
+![Modificación por Slicing](./media/Imagen2.png)
 
 **Manipulación de la Matriz (Slicing):** Se demuestra el acceso directo a coordenadas específicas de la matriz de la imagen. Por un lado, se sobrescribió un área rectangular asignándole directamente el valor BGR correspondiente al color rojo `[0, 0, 255]`. Por otro lado, se extrajo un "parche" (la zona del ojo) guardándolo en una variable, para luego inyectarlo en una región diferente (esquina superior derecha).
 
