@@ -1,0 +1,10 @@
+git+https://github.com/facebookresearch/segment-anything.git
+supervision
+opencv-python
+matplotlib
+pillow
+numpy
+torch
+torchvision
+transformers
+huggingface_hub
