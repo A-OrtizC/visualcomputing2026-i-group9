@@ -31,3 +31,4 @@ venv/
 *.svg
 *.zip
 .vs/
+*.pt
