@@ -32,3 +32,5 @@ venv/
 *.zip
 .vs/
 *.pt
+*.pth
+data/
