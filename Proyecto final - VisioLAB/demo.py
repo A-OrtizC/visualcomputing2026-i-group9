@@ -185,6 +185,17 @@ st.markdown("""
     .stButton > button:hover {
         transform: translateY(-1px);
     }
+    
+    [class *= st-key-move-container] button {
+    min-height: 1.25rem !important;
+    padding: 0 !important;
+    margin-bottom: 0px !important;
+    }
+    
+    .st-key-filter-container button {
+    padding: 0 !important;
+    width: 2rem !important;
+    }
 
     .section-label {
         color: #9ca3af;
@@ -277,7 +288,7 @@ with st.sidebar:
     st.markdown('<div class="section-label">Fuente de imagen</div>',
                 unsafe_allow_html=True)
     source = st.radio(
-        "Fuente", ["Subir imagen", "Imagen sintetica"],
+        "Fuente", ["Subir imagen", "Imagen sintetica", "Webcam"],
         label_visibility="collapsed",
     )
 
@@ -286,6 +297,11 @@ with st.sidebar:
         uploaded = st.file_uploader(
             "Selecciona una imagen",
             type=["jpg", "jpeg", "png", "bmp", "webp"],
+        )
+    
+    if source == "Webcam":
+        uploaded = st.camera_input(
+            "Capture la imagen a procesar"
         )
 
     st.markdown('<hr class="vl-divider">', unsafe_allow_html=True)
@@ -404,17 +420,29 @@ with st.sidebar:
     if not st.session_state.filter_list:
         st.caption("Sin filtros aplicados")
     else:
-        for i, f in enumerate(st.session_state.filter_list):
-            col_tag, col_del = st.columns([5, 1])
-            with col_tag:
-                st.markdown(
-                    f'<span class="filter-tag">{i+1}. {f["name"]}</span>',
-                    unsafe_allow_html=True,
-                )
-            with col_del:
-                if st.button("x", key=f"del_{i}", help="Eliminar"):
-                    st.session_state.filter_list.pop(i)
-                    st.rerun()
+        with st.container(key=f"filter-container", gap=None):
+            for i, f in enumerate(st.session_state.filter_list):
+                col_tag, col_del, col_mv = st.columns([5, 1, 1], vertical_alignment="center")
+                with col_tag:
+                    st.markdown(
+                        f'<span class="filter-tag">{i+1}. {f["name"]}</span>',
+                        unsafe_allow_html=True,
+                    )
+                with col_del:
+                    if st.button("✕", key=f"del_{i}", help="Eliminar"):
+                        st.session_state.filter_list.pop(i)
+                        st.rerun()
+                with col_mv:
+                    with st.container(key=f"move-container-{i}", gap=None):
+                        if st.button("↑", key=f"up_{i}", help="Mover arriba", disabled=(i == 0), type="tertiary"):
+                            filters = st.session_state.filter_list
+                            filters[i], filters[i - 1] = filters[i - 1], filters[i]
+                            st.rerun()
+                        
+                        if st.button("↓", key=f"down_{i}", help="Mover abajo", disabled=(i == len(st.session_state.filter_list)-1), type="tertiary"):
+                            filters = st.session_state.filter_list
+                            filters[i], filters[i + 1] = filters[i + 1], filters[i]
+                            st.rerun()
 
     # Presets rapidos
     st.markdown('<hr class="vl-divider">', unsafe_allow_html=True)
@@ -502,7 +530,7 @@ def synthetic_image(size=(480, 640)):
 
 img_bgr = None
 
-if source == "Subir imagen" and uploaded is not None:
+if source in {"Subir imagen", "Webcam"} and uploaded is not None:
     img_bgr = load_image(uploaded)
 elif source == "Imagen sintetica":
     img_bgr = synthetic_image()
