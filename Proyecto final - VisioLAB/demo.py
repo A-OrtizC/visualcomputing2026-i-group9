@@ -12,7 +12,7 @@ import io
 
 # Modulos del proyecto
 from filters import FilterPipeline, ColorSpaceConverter, StreamlitBridge
-from analysis import ImageAnalyzer, ChartBuilder, ImageStats
+from analysis import ImageAnalyzer, ChartBuilder, ImageStats, MatrixExtractor
 from detection import ObjectDetector, DetectionAnalytics, DetectionResult
 
 
@@ -776,16 +776,21 @@ with tab_analysis:
     st.markdown('<div class="section-label">Analisis de imagen</div>',
                 unsafe_allow_html=True)
 
+    # Calcular todas las estadisticas (basicas + extendidas)
     stats_orig = ImageAnalyzer.compute_stats(img_bgr)
     stats_proc = ImageAnalyzer.compute_stats(img_out)
+    ext_orig   = ImageAnalyzer.compute_extended_stats(img_bgr)
+    ext_proc   = ImageAnalyzer.compute_extended_stats(img_out)
     comparison = ImageAnalyzer.compare(img_bgr, img_out)
 
-    cmp_c1, cmp_c2, cmp_c3, cmp_c4 = st.columns(4)
+    # ── Metricas de comparacion ──────────────────────────────────
+    cmp_c1, cmp_c2, cmp_c3, cmp_c4, cmp_c5 = st.columns(5)
     cmp_metrics = [
-        (cmp_c1, f"{comparison.mse:.1f}", "MSE"),
-        (cmp_c2, f"{comparison.psnr:.1f} dB" if comparison.psnr > 0 else "N/A", "PSNR"),
+        (cmp_c1, f"{comparison.mse:.1f}",                                          "MSE"),
+        (cmp_c2, f"{comparison.psnr:.1f} dB" if comparison.psnr > 0 else "N/A",   "PSNR"),
         (cmp_c3, f"{comparison.ssim_value:.3f}" if comparison.ssim_value else "N/A", "SSIM"),
-        (cmp_c4, f"{comparison.mean_diff:.1f}", "Diferencia media"),
+        (cmp_c4, f"{comparison.mean_diff:.1f}",                                    "Dif. media"),
+        (cmp_c5, comparison.quality_label(),                                       "Calidad"),
     ]
 
     for col, val, lbl in cmp_metrics:
@@ -799,39 +804,164 @@ with tab_analysis:
 
     st.markdown('<hr class="vl-divider">', unsafe_allow_html=True)
 
-    st.markdown('<div class="section-label">Histogramas comparativos</div>',
-                unsafe_allow_html=True)
-    hist_cmp = ChartBuilder.histogram_comparison(img_bgr, img_out, height=300)
+    # ── Histogramas comparativos ─────────────────────────────────
+    hist_ctrl_c1, hist_ctrl_c2 = st.columns([3, 1])
+    with hist_ctrl_c1:
+        st.markdown('<div class="section-label">Histogramas comparativos</div>',
+                    unsafe_allow_html=True)
+    with hist_ctrl_c2:
+        log_scale = st.checkbox("Escala log", value=False, key="hist_log")
+
+    hist_cmp = ChartBuilder.histogram_comparison(img_bgr, img_out,
+                                                 height=300, log_scale=log_scale)
     if hist_cmp:
         st.plotly_chart(hist_cmp, use_container_width=True)
 
     st.markdown('<hr class="vl-divider">', unsafe_allow_html=True)
 
+    # ── Mapa de diferencias + tabla de estadisticas ──────────────
     an_c1, an_c2 = st.columns(2)
 
     with an_c1:
         st.markdown('<div class="section-label">Mapa de diferencias</div>',
                     unsafe_allow_html=True)
-        diff_map = ImageAnalyzer.compute_difference_map(img_bgr, img_out)
+
+        diff_ch = st.radio(
+            "Vista",
+            ["Global", "Canal B", "Canal G", "Canal R"],
+            horizontal=True,
+            key="diff_ch_selector",
+        )
+
+        if diff_ch == "Global":
+            diff_map = ImageAnalyzer.compute_difference_map(img_bgr, img_out)
+        else:
+            ch_idx = {"Canal B": 0, "Canal G": 1, "Canal R": 2}[diff_ch]
+            diff_map = ImageAnalyzer.compute_channel_diff_map(img_bgr, img_out, ch_idx)
+
         st.image(StreamlitBridge.bgr_to_rgb(diff_map), use_container_width=True)
 
     with an_c2:
         st.markdown('<div class="section-label">Estadisticas por canal</div>',
                     unsafe_allow_html=True)
 
-        channel_names = ["Blue", "Green", "Red"]
-        for ch in range(min(3, stats_orig.channels)):
-            st.markdown(f"**{channel_names[ch]}**")
-            orig_str = (f"Media: {stats_orig.mean[ch]} | "
-                       f"Std: {stats_orig.std[ch]} | "
-                       f"Rango: [{stats_orig.min_val[ch]}, {stats_orig.max_val[ch]}]")
-            proc_str = (f"Media: {stats_proc.mean[ch]} | "
-                       f"Std: {stats_proc.std[ch]} | "
-                       f"Rango: [{stats_proc.min_val[ch]}, {stats_proc.max_val[ch]}]")
-            st.caption(f"Original: {orig_str}")
-            st.caption(f"Procesada: {proc_str}")
+        try:
+            import pandas as pd
+            _pandas_ok = True
+        except ImportError:
+            _pandas_ok = False
+
+        if _pandas_ok:
+            df_orig = pd.DataFrame(MatrixExtractor.summary_table(img_bgr))
+            df_proc = pd.DataFrame(MatrixExtractor.summary_table(img_out))
+
+            st.caption("Original")
+            st.dataframe(df_orig, use_container_width=True, hide_index=True)
+            st.caption("Procesada")
+            st.dataframe(df_proc, use_container_width=True, hide_index=True)
+        else:
+            # Fallback si pandas no esta disponible
+            channel_names = ["Blue", "Green", "Red"]
+            for ch in range(min(3, stats_orig.channels)):
+                st.markdown(f"**{channel_names[ch]}**")
+                orig_str = (f"Media: {stats_orig.mean[ch]} | "
+                            f"Std: {stats_orig.std[ch]} | "
+                            f"Rango: [{stats_orig.min_val[ch]}, {stats_orig.max_val[ch]}]")
+                proc_str = (f"Media: {stats_proc.mean[ch]} | "
+                            f"Std: {stats_proc.std[ch]} | "
+                            f"Rango: [{stats_proc.min_val[ch]}, {stats_proc.max_val[ch]}]")
+                st.caption(f"Original: {orig_str}")
+                st.caption(f"Procesada: {proc_str}")
 
     st.markdown('<hr class="vl-divider">', unsafe_allow_html=True)
+
+    # ── Brillo / Contraste RMS ───────────────────────────────────
+    bc_c1, bc_c2, bc_c3, bc_c4 = st.columns(4)
+    bc_metrics = [
+        (bc_c1, f"{ext_orig.brightness:.1f}",    "Brillo orig."),
+        (bc_c2, f"{ext_proc.brightness:.1f}",    "Brillo proc."),
+        (bc_c3, f"{ext_orig.contrast_rms:.1f}",  "Contraste orig."),
+        (bc_c4, f"{ext_proc.contrast_rms:.1f}",  "Contraste proc."),
+    ]
+    for col, val, lbl in bc_metrics:
+        with col:
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-val">{val}</div>
+                <div class="metric-lbl">{lbl}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown('<hr class="vl-divider">', unsafe_allow_html=True)
+
+    # ── Percentiles + Entropia ───────────────────────────────────
+    adv_c1, adv_c2 = st.columns(2)
+
+    with adv_c1:
+        st.markdown('<div class="section-label">Percentiles por canal</div>',
+                    unsafe_allow_html=True)
+        fig_pct = ChartBuilder.percentile_bar_chart(ext_orig, ext_proc)
+        if fig_pct:
+            st.plotly_chart(fig_pct, use_container_width=True)
+
+    with adv_c2:
+        st.markdown('<div class="section-label">Entropia de Shannon</div>',
+                    unsafe_allow_html=True)
+        fig_ent = ChartBuilder.entropy_comparison_chart(ext_orig, ext_proc)
+        if fig_ent:
+            st.plotly_chart(fig_ent, use_container_width=True)
+
+    st.markdown('<hr class="vl-divider">', unsafe_allow_html=True)
+
+    # ── Perfil de intensidad + Balance de color ──────────────────
+    prof_c1, prof_c2 = st.columns(2)
+
+    with prof_c1:
+        st.markdown('<div class="section-label">Perfil de intensidad</div>',
+                    unsafe_allow_html=True)
+        axis_sel = st.radio("Eje", ["horizontal", "vertical"],
+                            horizontal=True, key="intensity_axis")
+        fig_prof = ChartBuilder.spatial_intensity_profile(img_out, axis=axis_sel)
+        if fig_prof:
+            st.plotly_chart(fig_prof, use_container_width=True)
+
+    with prof_c2:
+        st.markdown('<div class="section-label">Balance de color</div>',
+                    unsafe_allow_html=True)
+        st.caption(f"Canal dominante original: **{ext_orig.channel_dominance}** "
+                   f"→ procesada: **{ext_proc.channel_dominance}**")
+        fig_bal = ChartBuilder.channel_balance_chart(ext_orig, ext_proc)
+        if fig_bal:
+            st.plotly_chart(fig_bal, use_container_width=True)
+
+    st.markdown('<hr class="vl-divider">', unsafe_allow_html=True)
+
+    # ── Expanders avanzados ──────────────────────────────────────
+    with st.expander("Inspeccion de matriz de canal", expanded=False):
+        mat_col, mat_ch = st.columns([2, 1])
+        with mat_ch:
+            selected_ch = st.selectbox(
+                "Canal", ["Blue (0)", "Green (1)", "Red (2)"], key="mat_ch_sel"
+            )
+            ch_idx = {"Blue (0)": 0, "Green (1)": 1, "Red (2)": 2}[selected_ch]
+            mat_img = st.radio("Imagen", ["Original", "Procesada"],
+                               key="mat_img_sel", horizontal=True)
+            src_img = img_bgr if mat_img == "Original" else img_out
+        with mat_col:
+            st.caption(f"Primeros 20×20 píxeles — {selected_ch} — {mat_img}")
+            if _pandas_ok:
+                mat_data = MatrixExtractor.channel_as_dataframe_dict(
+                    src_img, ch_idx, max_rows=20, max_cols=20
+                )
+                st.dataframe(
+                    pd.DataFrame(mat_data),
+                    use_container_width=True,
+                    height=280,
+                )
+            else:
+                mat = MatrixExtractor.extract_channel(src_img, ch_idx)
+                st.text(str(mat[:10, :10]))
+
     with st.expander("Distribucion de color 3D", expanded=False):
         scatter_c1, scatter_c2 = st.columns(2)
         with scatter_c1:
