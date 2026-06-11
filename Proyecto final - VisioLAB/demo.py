@@ -605,7 +605,7 @@ with tab_filters:
 
     hist_fig = ChartBuilder.histogram_comparison(img_bgr, img_out)
     if hist_fig:
-        st.plotly_chart(hist_fig, use_container_width=True)
+        st.plotly_chart(hist_fig, use_container_width=True, key="tab1_hist")
 
     # Detalle del pipeline
     with st.expander("Detalle del pipeline", expanded=False):
@@ -737,7 +737,7 @@ with tab_detection:
                             unsafe_allow_html=True)
                 class_fig = ChartBuilder.detection_class_chart(det_result.class_counts)
                 if class_fig:
-                    st.plotly_chart(class_fig, use_container_width=True)
+                    st.plotly_chart(class_fig, use_container_width=True, key="tab2_class")
 
             with chart_c2:
                 st.markdown('<div class="section-label">Distribucion de confianza</div>',
@@ -745,7 +745,7 @@ with tab_detection:
                 confs = [d.confidence for d in det_result.detections]
                 conf_fig = ChartBuilder.confidence_distribution(confs)
                 if conf_fig:
-                    st.plotly_chart(conf_fig, use_container_width=True)
+                    st.plotly_chart(conf_fig, use_container_width=True, key="tab2_conf")
 
             st.markdown('<div class="section-label">Mapa de calor de detecciones</div>',
                         unsafe_allow_html=True)
@@ -815,7 +815,7 @@ with tab_analysis:
     hist_cmp = ChartBuilder.histogram_comparison(img_bgr, img_out,
                                                  height=300, log_scale=log_scale)
     if hist_cmp:
-        st.plotly_chart(hist_cmp, use_container_width=True)
+        st.plotly_chart(hist_cmp, use_container_width=True, key="tab3_hist")
 
     st.markdown('<hr class="vl-divider">', unsafe_allow_html=True)
 
@@ -902,14 +902,14 @@ with tab_analysis:
                     unsafe_allow_html=True)
         fig_pct = ChartBuilder.percentile_bar_chart(ext_orig, ext_proc)
         if fig_pct:
-            st.plotly_chart(fig_pct, use_container_width=True)
+            st.plotly_chart(fig_pct, use_container_width=True, key="tab3_pct")
 
     with adv_c2:
         st.markdown('<div class="section-label">Entropia de Shannon</div>',
                     unsafe_allow_html=True)
         fig_ent = ChartBuilder.entropy_comparison_chart(ext_orig, ext_proc)
         if fig_ent:
-            st.plotly_chart(fig_ent, use_container_width=True)
+            st.plotly_chart(fig_ent, use_container_width=True, key="tab3_ent")
 
     st.markdown('<hr class="vl-divider">', unsafe_allow_html=True)
 
@@ -923,7 +923,7 @@ with tab_analysis:
                             horizontal=True, key="intensity_axis")
         fig_prof = ChartBuilder.spatial_intensity_profile(img_out, axis=axis_sel)
         if fig_prof:
-            st.plotly_chart(fig_prof, use_container_width=True)
+            st.plotly_chart(fig_prof, use_container_width=True, key="tab3_prof")
 
     with prof_c2:
         st.markdown('<div class="section-label">Balance de color</div>',
@@ -932,7 +932,7 @@ with tab_analysis:
                    f"→ procesada: **{ext_proc.channel_dominance}**")
         fig_bal = ChartBuilder.channel_balance_chart(ext_orig, ext_proc)
         if fig_bal:
-            st.plotly_chart(fig_bal, use_container_width=True)
+            st.plotly_chart(fig_bal, use_container_width=True, key="tab3_bal")
 
     st.markdown('<hr class="vl-divider">', unsafe_allow_html=True)
 
@@ -968,17 +968,17 @@ with tab_analysis:
             st.markdown("**Original**")
             fig_3d_orig = ChartBuilder.color_scatter_3d(img_bgr)
             if fig_3d_orig:
-                st.plotly_chart(fig_3d_orig, use_container_width=True)
+                st.plotly_chart(fig_3d_orig, use_container_width=True, key="tab3_3d_orig")
         with scatter_c2:
             st.markdown("**Procesada**")
             fig_3d_proc = ChartBuilder.color_scatter_3d(img_out)
             if fig_3d_proc:
-                st.plotly_chart(fig_3d_proc, use_container_width=True)
+                st.plotly_chart(fig_3d_proc, use_container_width=True, key="tab3_3d_proc")
 
 
 # ---- TAB 4: PIPELINE COMPLETO ----
 
-chart_ID = 1345678
+
 
 with tab_full:
     st.markdown('<div class="section-label">Pipeline completo: filtros + deteccion + analisis</div>',
