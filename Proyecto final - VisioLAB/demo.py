@@ -978,6 +978,8 @@ with tab_analysis:
 
 # ---- TAB 4: PIPELINE COMPLETO ----
 
+chart_ID = 1345678
+
 with tab_full:
     st.markdown('<div class="section-label">Pipeline completo: filtros + deteccion + analisis</div>',
                 unsafe_allow_html=True)
@@ -1063,12 +1065,12 @@ with tab_full:
 
                 full_hist = ChartBuilder.histogram_comparison(img_bgr, img_out)
                 if full_hist:
-                    st.plotly_chart(full_hist, use_container_width=True)
+                    st.plotly_chart(full_hist, key=f"full-pipeline-hist", use_container_width=True)
 
                 if full_det.class_counts:
                     class_chart = ChartBuilder.detection_class_chart(full_det.class_counts)
                     if class_chart:
-                        st.plotly_chart(class_chart, use_container_width=True)
+                        st.plotly_chart(class_chart, key=f"full-pipeline-class", use_container_width=True)
 
             except ImportError as e:
                 st.error(f"Error: {e}. Instala con: pip install ultralytics")
