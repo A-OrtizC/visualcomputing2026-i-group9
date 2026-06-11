@@ -9,11 +9,22 @@ import cv2
 import numpy as np
 from PIL import Image
 import io
+import time
+import threading
 
 # Modulos del proyecto
 from filters import FilterPipeline, ColorSpaceConverter, StreamlitBridge
 from analysis import ImageAnalyzer, ChartBuilder, ImageStats, MatrixExtractor
 from detection import ObjectDetector, DetectionAnalytics, DetectionResult
+
+# Webcam en tiempo real (opcional)
+_webrtc_available = False
+try:
+    from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
+    import av
+    _webrtc_available = True
+except ImportError:
+    pass
 
 
 # --- Configuracion de pagina ---
@@ -552,8 +563,8 @@ img_out = result.image
 
 # --- Tabs principales ---
 
-tab_filters, tab_detection, tab_analysis, tab_full = st.tabs([
-    "Filtros", "Deteccion IA", "Analisis", "Pipeline completo",
+tab_filters, tab_detection, tab_analysis, tab_full, tab_video = st.tabs([
+    "Filtros", "Deteccion IA", "Analisis", "Pipeline completo", "Video en vivo",
 ])
 
 
@@ -1079,6 +1090,138 @@ with tab_full:
 
     else:
         st.caption("Presiona el boton para ejecutar el pipeline completo.")
+
+
+# ---- TAB 5: VIDEO EN VIVO ----
+
+with tab_video:
+    st.markdown('<div class="section-label">Video en tiempo real con deteccion</div>',
+                unsafe_allow_html=True)
+
+    if not _webrtc_available:
+        st.warning(
+            "Se necesita streamlit-webrtc para video en vivo. "
+            "Instala con: pip install streamlit-webrtc"
+        )
+    else:
+        st.markdown(
+            "Activa la webcam para aplicar filtros y deteccion YOLO "
+            "sobre el flujo de video en tiempo real."
+        )
+
+        vid_c1, vid_c2, vid_c3 = st.columns(3)
+        with vid_c1:
+            vid_enable_det = st.checkbox(
+                "Activar deteccion YOLO", value=False, key="vid_det",
+            )
+        with vid_c2:
+            vid_model = st.selectbox(
+                "Modelo",
+                list(ObjectDetector.AVAILABLE_MODELS.keys()),
+                key="vid_model",
+            )
+        with vid_c3:
+            vid_conf = st.slider(
+                "Confianza", 0.1, 0.9, 0.3, step=0.05, key="vid_conf",
+            )
+
+        vid_apply_filters = st.checkbox(
+            "Aplicar pipeline de filtros al video", value=False, key="vid_filters",
+        )
+
+        # Procesador de video que corre en un hilo separado.
+        # recv() se ejecuta por cada frame capturado por la webcam,
+        # asi la interfaz de Streamlit no se bloquea.
+        class VisioLabProcessor(VideoProcessorBase):
+            def __init__(self):
+                self.enable_detection = False
+                self.apply_filters = False
+                self.filter_list = []
+                self.color_space = "original"
+                self.model_name = "yolov8n.pt"
+                self.confidence = 0.3
+                self._detector = None
+                self._lock = threading.Lock()
+                self.fps = 0.0
+                self._last_time = time.time()
+                self._frame_count = 0
+                self._fps_update_interval = 0.5
+                self._fps_last_update = time.time()
+
+            def _get_detector(self):
+                """Carga el modelo YOLO una sola vez (lazy init)."""
+                if self._detector is None or self._detector.model_name != self.model_name:
+                    try:
+                        self._detector = ObjectDetector(self.model_name)
+                    except Exception:
+                        self._detector = None
+                return self._detector
+
+            def recv(self, frame):
+                img = frame.to_ndarray(format="bgr24")
+                t_start = time.time()
+
+                # Aplicar filtros si estan activados
+                if self.apply_filters and self.filter_list:
+                    pipeline = FilterPipeline()
+                    for f in self.filter_list:
+                        pipeline.add(f["name"], **f["params"])
+                    result = pipeline.apply(img, color_space=self.color_space)
+                    img = result.image
+
+                # Deteccion YOLO
+                if self.enable_detection:
+                    detector = self._get_detector()
+                    if detector is not None:
+                        try:
+                            det_result = detector.detect(
+                                img, confidence=self.confidence,
+                            )
+                            img = det_result.annotated_image
+                        except Exception:
+                            pass
+
+                # Calcular FPS
+                self._frame_count += 1
+                now = time.time()
+                elapsed = now - self._fps_last_update
+                if elapsed >= self._fps_update_interval:
+                    self.fps = self._frame_count / elapsed
+                    self._frame_count = 0
+                    self._fps_last_update = now
+
+                # Dibujar FPS en la esquina
+                fps_text = f"FPS: {self.fps:.1f}"
+                cv2.putText(
+                    img, fps_text, (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (34, 197, 94), 2,
+                    cv2.LINE_AA,
+                )
+
+                return av.VideoFrame.from_ndarray(img, format="bgr24")
+
+        ctx = webrtc_streamer(
+            key="visiolab-webcam",
+            video_processor_factory=VisioLabProcessor,
+            media_stream_constraints={"video": True, "audio": False},
+            async_processing=True,
+        )
+
+        # Sincronizar configuracion de la UI con el procesador
+        if ctx.video_processor:
+            ctx.video_processor.enable_detection = vid_enable_det
+            ctx.video_processor.apply_filters = vid_apply_filters
+            ctx.video_processor.filter_list = st.session_state.filter_list
+            ctx.video_processor.color_space = color_space
+            ctx.video_processor.model_name = ObjectDetector.AVAILABLE_MODELS[vid_model]
+            ctx.video_processor.confidence = vid_conf
+
+        st.markdown('<hr class="vl-divider">', unsafe_allow_html=True)
+        st.caption(
+            "El procesamiento de video corre en un hilo separado "
+            "para no bloquear la interfaz (threading). "
+            "El contador de FPS se muestra en la esquina superior izquierda."
+        )
 
 
 # --- Footer ---
