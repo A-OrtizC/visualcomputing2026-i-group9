@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "168056280073",
+    "firebase_url": "https://taller-semana-15---4-default-rtdb.firebaseio.com",
+    "project_id": "taller-semana-15---4",
+    "storage_bucket": "taller-semana-15---4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:168056280073:android:282c7778adabfdfe6f14d8",
+        "android_client_info": {
+          "package_name": "com.juclopezbu.taller14_5"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQvA9PVYwS5HRDo7sSL_-xQzX7Wwj8oek"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
